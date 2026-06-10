@@ -204,3 +204,5 @@ my_env.tfvars
 tools/a2a-inspector/
 
 .chainlit/
+deployment_metadata.json
+chainlit.md

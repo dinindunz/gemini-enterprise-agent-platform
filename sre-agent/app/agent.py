@@ -14,8 +14,10 @@
 # limitations under the License.
 
 from google.adk.agents import Agent
+from google.adk.agents.callback_context import CallbackContext
 from google.adk.apps import App
 from google.adk.models import Gemini
+from google.adk.tools.preload_memory_tool import PreloadMemoryTool
 from google.genai import types
 
 import os
@@ -25,6 +27,10 @@ _, project_id = google.auth.default()
 os.environ["GOOGLE_CLOUD_PROJECT"] = project_id
 os.environ["GOOGLE_CLOUD_LOCATION"] = "global"
 os.environ["GOOGLE_GENAI_USE_VERTEXAI"] = "True"
+
+
+async def generate_memories_callback(callback_context: CallbackContext):
+    await callback_context.add_session_to_memory()
 
 
 root_agent = Agent(
@@ -39,7 +45,8 @@ root_agent = Agent(
         "Keep responses brief, positive, and welcoming. "
         "Do not answer questions outside of greetings and pleasantries."
     ),
-    tools=[],
+    tools=[PreloadMemoryTool()],
+    after_agent_callback=generate_memories_callback,
 )
 
 app = App(

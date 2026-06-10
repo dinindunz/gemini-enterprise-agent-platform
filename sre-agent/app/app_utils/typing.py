@@ -12,7 +12,23 @@
 # See the License for the specific language governing permissions and
 # limitations under the License.
 
-output "agent_runtime_resource_name" {
-  description = "Agent Runtime resource name"
-  value       = google_vertex_ai_reasoning_engine.app.name
-}
+import uuid
+from typing import (
+    Literal,
+)
+
+from pydantic import (
+    BaseModel,
+    Field,
+)
+
+
+class Feedback(BaseModel):
+    """Represents feedback for a conversation."""
+
+    score: int | float
+    text: str | None = ""
+    log_type: Literal["feedback"] = "feedback"
+    service_name: Literal["sre-agent"] = "sre-agent"
+    user_id: str = Field(default_factory=lambda: str(uuid.uuid4()))
+    session_id: str = Field(default_factory=lambda: str(uuid.uuid4()))

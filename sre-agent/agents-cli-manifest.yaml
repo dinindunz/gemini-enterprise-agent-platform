@@ -1,4 +1,4 @@
-name: greeting-agent
+name: sre-agent
 acli_version: 0.3.1
 agent_directory: app
 region: us-east1

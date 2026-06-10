@@ -1,12 +1,14 @@
 import chainlit as cl
+from google.adk.memory import InMemoryMemoryService
 from google.adk.runners import Runner
 from google.adk.sessions import InMemorySessionService
 from google.genai import types
 
 from app.agent import root_agent
 
-APP_NAME = "greeting-agent"
+APP_NAME = "sre-agent"
 _session_service = InMemorySessionService()
+_memory_service = InMemoryMemoryService()
 
 
 @cl.on_chat_start
@@ -19,6 +21,7 @@ async def on_chat_start():
         agent=root_agent,
         app_name=APP_NAME,
         session_service=_session_service,
+        memory_service=_memory_service,
     )
     cl.user_session.set("session_id", session.id)
     cl.user_session.set("runner", runner)
