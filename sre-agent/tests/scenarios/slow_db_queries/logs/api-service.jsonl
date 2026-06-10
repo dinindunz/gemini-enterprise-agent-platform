@@ -1,0 +1,40 @@
+{"offset_seconds": 0, "level": "INFO", "message": "Application started", "service": "api-service", "version": "2.4.1", "port": 8080}
+{"offset_seconds": 12, "level": "INFO", "message": "GET /orders completed", "service": "api-service", "method": "GET", "path": "/orders", "status": 200, "duration_ms": 142, "user_id": "u-1021"}
+{"offset_seconds": 28, "level": "INFO", "message": "GET /orders completed", "service": "api-service", "method": "GET", "path": "/orders", "status": 200, "duration_ms": 158, "user_id": "u-3047"}
+{"offset_seconds": 45, "level": "INFO", "message": "POST /orders completed", "service": "api-service", "method": "POST", "path": "/orders", "status": 201, "duration_ms": 203, "user_id": "u-2198"}
+{"offset_seconds": 61, "level": "INFO", "message": "GET /orders completed", "service": "api-service", "method": "GET", "path": "/orders", "status": 200, "duration_ms": 167, "user_id": "u-4412"}
+{"offset_seconds": 78, "level": "INFO", "message": "GET /products completed", "service": "api-service", "method": "GET", "path": "/products", "status": 200, "duration_ms": 89, "user_id": "u-1021"}
+{"offset_seconds": 95, "level": "INFO", "message": "GET /orders completed", "service": "api-service", "method": "GET", "path": "/orders", "status": 200, "duration_ms": 174, "user_id": "u-5503"}
+{"offset_seconds": 120, "level": "INFO", "message": "Health check passed", "service": "api-service", "checks": {"db": "ok", "cache": "ok"}}
+{"offset_seconds": 183, "level": "INFO", "message": "GET /orders completed", "service": "api-service", "method": "GET", "path": "/orders", "status": 200, "duration_ms": 188, "user_id": "u-3047"}
+{"offset_seconds": 241, "level": "INFO", "message": "GET /orders/export completed", "service": "api-service", "method": "GET", "path": "/orders/export", "status": 200, "duration_ms": 1842, "user_id": "u-2198"}
+{"offset_seconds": 300, "level": "INFO", "message": "Health check passed", "service": "api-service", "checks": {"db": "ok", "cache": "ok"}}
+{"offset_seconds": 361, "level": "WARN", "message": "Slow request detected", "service": "api-service", "method": "GET", "path": "/orders", "duration_ms": 3241, "threshold_ms": 2000, "user_id": "u-1021"}
+{"offset_seconds": 374, "level": "WARN", "message": "Slow request detected", "service": "api-service", "method": "GET", "path": "/orders/export", "duration_ms": 4817, "threshold_ms": 2000, "user_id": "u-4412"}
+{"offset_seconds": 389, "level": "WARN", "message": "DB connection pool pressure", "service": "api-service", "pool_size": 20, "active_connections": 17, "waiting_requests": 2, "db_host": "db-primary"}
+{"offset_seconds": 402, "level": "WARN", "message": "Slow request detected", "service": "api-service", "method": "GET", "path": "/orders", "duration_ms": 5103, "threshold_ms": 2000, "user_id": "u-5503"}
+{"offset_seconds": 418, "level": "INFO", "message": "GET /products completed", "service": "api-service", "method": "GET", "path": "/products", "status": 200, "duration_ms": 95, "user_id": "u-3047"}
+{"offset_seconds": 431, "level": "WARN", "message": "DB connection pool pressure", "service": "api-service", "pool_size": 20, "active_connections": 19, "waiting_requests": 5, "db_host": "db-primary"}
+{"offset_seconds": 445, "level": "ERROR", "message": "QueryTimeoutError: statement timeout after 30000ms", "service": "api-service", "query": "SELECT * FROM orders WHERE customer_id=? ORDER BY created_at DESC", "db_host": "db-primary", "user_id": "u-1021"}
+{"offset_seconds": 446, "level": "WARN", "message": "Retrying DB call", "service": "api-service", "attempt": 1, "max_attempts": 3, "query_target": "orders"}
+{"offset_seconds": 460, "level": "INFO", "message": "GET /products completed", "service": "api-service", "method": "GET", "path": "/products", "status": 200, "duration_ms": 101, "user_id": "u-2198"}
+{"offset_seconds": 476, "level": "ERROR", "message": "QueryTimeoutError: statement timeout after 30000ms", "service": "api-service", "query": "SELECT * FROM orders WHERE customer_id=? ORDER BY created_at DESC", "db_host": "db-primary", "user_id": "u-1021"}
+{"offset_seconds": 477, "level": "WARN", "message": "Retrying DB call", "service": "api-service", "attempt": 2, "max_attempts": 3, "query_target": "orders"}
+{"offset_seconds": 480, "level": "INFO", "message": "Health check passed", "service": "api-service", "checks": {"db": "ok", "cache": "ok"}}
+{"offset_seconds": 507, "level": "ERROR", "message": "QueryTimeoutError: statement timeout after 30000ms", "service": "api-service", "query": "SELECT * FROM orders WHERE customer_id=? ORDER BY created_at DESC", "db_host": "db-primary", "user_id": "u-1021"}
+{"offset_seconds": 508, "level": "ERROR", "message": "All retry attempts exhausted for DB query", "service": "api-service", "attempts": 3, "query_target": "orders", "db_host": "db-primary"}
+{"offset_seconds": 509, "level": "ERROR", "message": "HTTP 500 returned to client", "service": "api-service", "method": "GET", "path": "/orders", "status": 500, "user_id": "u-1021"}
+{"offset_seconds": 521, "level": "ERROR", "message": "DB connection pool exhausted", "service": "api-service", "pool_size": 20, "active_connections": 20, "waiting_requests": 12, "db_host": "db-primary", "wait_ms": 5000}
+{"offset_seconds": 534, "level": "ERROR", "message": "HTTP 500 returned to client", "service": "api-service", "method": "GET", "path": "/orders/export", "status": 500, "user_id": "u-4412"}
+{"offset_seconds": 548, "level": "ERROR", "message": "HTTP 500 returned to client", "service": "api-service", "method": "GET", "path": "/orders", "status": 500, "user_id": "u-5503"}
+{"offset_seconds": 562, "level": "ERROR", "message": "QueryTimeoutError: statement timeout after 30000ms", "service": "api-service", "query": "SELECT * FROM orders WHERE customer_id=? ORDER BY created_at DESC", "db_host": "db-primary", "user_id": "u-3047"}
+{"offset_seconds": 575, "level": "INFO", "message": "GET /products completed", "service": "api-service", "method": "GET", "path": "/products", "status": 200, "duration_ms": 113, "user_id": "u-2198"}
+{"offset_seconds": 589, "level": "ERROR", "message": "HTTP 500 returned to client", "service": "api-service", "method": "GET", "path": "/orders", "status": 500, "user_id": "u-3047"}
+{"offset_seconds": 600, "level": "INFO", "message": "Health check passed", "service": "api-service", "checks": {"db": "ok", "cache": "ok"}}
+{"offset_seconds": 602, "level": "ERROR", "message": "QueryTimeoutError: statement timeout after 30000ms", "service": "api-service", "query": "SELECT * FROM orders WHERE customer_id=? ORDER BY created_at DESC", "db_host": "db-primary", "user_id": "u-1021"}
+{"offset_seconds": 603, "level": "WARN", "message": "DB connection pool pressure", "service": "api-service", "pool_size": 20, "active_connections": 20, "waiting_requests": 14, "db_host": "db-primary"}
+{"offset_seconds": 617, "level": "ERROR", "message": "DB connection pool exhausted", "service": "api-service", "pool_size": 20, "active_connections": 20, "waiting_requests": 18, "db_host": "db-primary", "wait_ms": 5000}
+{"offset_seconds": 634, "level": "ERROR", "message": "HTTP 500 returned to client", "service": "api-service", "method": "GET", "path": "/orders", "status": 500, "user_id": "u-4412"}
+{"offset_seconds": 651, "level": "ERROR", "message": "QueryTimeoutError: statement timeout after 30000ms", "service": "api-service", "query": "SELECT * FROM orders WHERE customer_id=? ORDER BY created_at DESC", "db_host": "db-primary", "user_id": "u-5503"}
+{"offset_seconds": 652, "level": "WARN", "message": "Retrying DB call", "service": "api-service", "attempt": 1, "max_attempts": 3, "query_target": "orders"}
+{"offset_seconds": 664, "level": "ERROR", "message": "HTTP 500 returned to client", "service": "api-service", "method": "GET", "path": "/orders", "status": 500, "user_id": "u-5503"}

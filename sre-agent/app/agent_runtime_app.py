@@ -30,7 +30,7 @@ from app.app_utils.typing import Feedback
 load_dotenv()
 
 _PROJECT = os.environ.get("GOOGLE_CLOUD_PROJECT")
-_REGION = os.environ.get("GOOGLE_CLOUD_REGION", "us-east1")
+_REGION = os.environ.get("GOOGLE_CLOUD_REGION")
 # Extract the numeric ID from the full resource path
 _AGENT_ENGINE_ID = "5563247361569849344"
 

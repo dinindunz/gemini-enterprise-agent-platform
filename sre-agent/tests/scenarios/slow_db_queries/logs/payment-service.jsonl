@@ -1,0 +1,27 @@
+{"offset_seconds": 0, "level": "INFO", "message": "Application started", "service": "payment-service", "version": "1.8.3", "port": 8081}
+{"offset_seconds": 22, "level": "INFO", "message": "POST /payments completed", "service": "payment-service", "method": "POST", "path": "/payments", "status": 201, "duration_ms": 312, "order_id": "ord-7741"}
+{"offset_seconds": 48, "level": "INFO", "message": "GET /payments/ord-7741 completed", "service": "payment-service", "method": "GET", "path": "/payments/ord-7741", "status": 200, "duration_ms": 54}
+{"offset_seconds": 73, "level": "INFO", "message": "POST /payments completed", "service": "payment-service", "method": "POST", "path": "/payments", "status": 201, "duration_ms": 287, "order_id": "ord-7742"}
+{"offset_seconds": 99, "level": "INFO", "message": "GET /payments/ord-9991 completed", "service": "payment-service", "method": "GET", "path": "/payments/ord-9991", "status": 404, "duration_ms": 12}
+{"offset_seconds": 120, "level": "INFO", "message": "Health check passed", "service": "payment-service", "checks": {"db": "ok", "stripe": "ok"}}
+{"offset_seconds": 152, "level": "INFO", "message": "POST /payments completed", "service": "payment-service", "method": "POST", "path": "/payments", "status": 201, "duration_ms": 341, "order_id": "ord-7743"}
+{"offset_seconds": 178, "level": "INFO", "message": "GET /payments/ord-7743 completed", "service": "payment-service", "method": "GET", "path": "/payments/ord-7743", "status": 200, "duration_ms": 61}
+{"offset_seconds": 204, "level": "INFO", "message": "POST /refunds completed", "service": "payment-service", "method": "POST", "path": "/refunds", "status": 201, "duration_ms": 428, "order_id": "ord-7721"}
+{"offset_seconds": 240, "level": "INFO", "message": "Health check passed", "service": "payment-service", "checks": {"db": "ok", "stripe": "ok"}}
+{"offset_seconds": 271, "level": "WARN", "message": "Stripe API latency elevated", "service": "payment-service", "stripe_latency_ms": 1842, "threshold_ms": 1500}
+{"offset_seconds": 298, "level": "INFO", "message": "POST /payments completed", "service": "payment-service", "method": "POST", "path": "/payments", "status": 201, "duration_ms": 298, "order_id": "ord-7744"}
+{"offset_seconds": 325, "level": "INFO", "message": "GET /payments/ord-0012 completed", "service": "payment-service", "method": "GET", "path": "/payments/ord-0012", "status": 404, "duration_ms": 11}
+{"offset_seconds": 360, "level": "INFO", "message": "Health check passed", "service": "payment-service", "checks": {"db": "ok", "stripe": "ok"}}
+{"offset_seconds": 391, "level": "INFO", "message": "POST /payments completed", "service": "payment-service", "method": "POST", "path": "/payments", "status": 201, "duration_ms": 319, "order_id": "ord-7745"}
+{"offset_seconds": 418, "level": "INFO", "message": "GET /payments/ord-7745 completed", "service": "payment-service", "method": "GET", "path": "/payments/ord-7745", "status": 200, "duration_ms": 58}
+{"offset_seconds": 444, "level": "INFO", "message": "POST /refunds completed", "service": "payment-service", "method": "POST", "path": "/refunds", "status": 201, "duration_ms": 402, "order_id": "ord-7739"}
+{"offset_seconds": 471, "level": "WARN", "message": "Stripe API latency elevated", "service": "payment-service", "stripe_latency_ms": 1923, "threshold_ms": 1500}
+{"offset_seconds": 480, "level": "INFO", "message": "Health check passed", "service": "payment-service", "checks": {"db": "ok", "stripe": "ok"}}
+{"offset_seconds": 509, "level": "INFO", "message": "POST /payments completed", "service": "payment-service", "method": "POST", "path": "/payments", "status": 201, "duration_ms": 306, "order_id": "ord-7746"}
+{"offset_seconds": 537, "level": "INFO", "message": "GET /payments/ord-7746 completed", "service": "payment-service", "method": "GET", "path": "/payments/ord-7746", "status": 200, "duration_ms": 63}
+{"offset_seconds": 563, "level": "INFO", "message": "POST /payments completed", "service": "payment-service", "method": "POST", "path": "/payments", "status": 201, "duration_ms": 289, "order_id": "ord-7747"}
+{"offset_seconds": 590, "level": "INFO", "message": "GET /payments/ord-7747 completed", "service": "payment-service", "method": "GET", "path": "/payments/ord-7747", "status": 200, "duration_ms": 57}
+{"offset_seconds": 600, "level": "INFO", "message": "Health check passed", "service": "payment-service", "checks": {"db": "ok", "stripe": "ok"}}
+{"offset_seconds": 618, "level": "INFO", "message": "POST /payments completed", "service": "payment-service", "method": "POST", "path": "/payments", "status": 201, "duration_ms": 314, "order_id": "ord-7748"}
+{"offset_seconds": 645, "level": "INFO", "message": "Health check passed", "service": "payment-service", "checks": {"db": "ok", "stripe": "ok"}}
+{"offset_seconds": 672, "level": "INFO", "message": "GET /payments/ord-7748 completed", "service": "payment-service", "method": "GET", "path": "/payments/ord-7748", "status": 200, "duration_ms": 59}

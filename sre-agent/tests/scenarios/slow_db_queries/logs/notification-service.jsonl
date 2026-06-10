@@ -1,0 +1,30 @@
+{"offset_seconds": 0, "level": "INFO", "message": "Application started", "service": "notification-service", "version": "3.1.0", "port": 8082}
+{"offset_seconds": 31, "level": "INFO", "message": "Email dispatched", "service": "notification-service", "type": "order_confirmation", "recipient": "u-1021", "queue_depth": 2}
+{"offset_seconds": 58, "level": "INFO", "message": "Email dispatched", "service": "notification-service", "type": "payment_receipt", "recipient": "u-3047", "queue_depth": 1}
+{"offset_seconds": 84, "level": "INFO", "message": "SMS dispatched", "service": "notification-service", "type": "shipping_update", "recipient": "u-4412", "queue_depth": 0}
+{"offset_seconds": 110, "level": "INFO", "message": "Email dispatched", "service": "notification-service", "type": "order_confirmation", "recipient": "u-5503", "queue_depth": 3}
+{"offset_seconds": 120, "level": "INFO", "message": "Health check passed", "service": "notification-service", "checks": {"db": "ok", "smtp": "ok", "sms_gateway": "ok"}}
+{"offset_seconds": 147, "level": "INFO", "message": "Email dispatched", "service": "notification-service", "type": "payment_receipt", "recipient": "u-2198", "queue_depth": 1}
+{"offset_seconds": 173, "level": "INFO", "message": "Query completed", "service": "notification-service", "duration_ms": 17, "query": "SELECT * FROM notification_prefs WHERE user_id=?", "db_host": "db-replica-1"}
+{"offset_seconds": 199, "level": "INFO", "message": "Email dispatched", "service": "notification-service", "type": "order_confirmation", "recipient": "u-1021", "queue_depth": 2}
+{"offset_seconds": 225, "level": "WARN", "message": "Email queue lag detected", "service": "notification-service", "queue_depth": 18, "threshold": 15, "lag_seconds": 42}
+{"offset_seconds": 240, "level": "INFO", "message": "Health check passed", "service": "notification-service", "checks": {"db": "ok", "smtp": "ok", "sms_gateway": "ok"}}
+{"offset_seconds": 258, "level": "WARN", "message": "Email queue lag detected", "service": "notification-service", "queue_depth": 24, "threshold": 15, "lag_seconds": 71}
+{"offset_seconds": 281, "level": "WARN", "message": "SMTP connection pool pressure", "service": "notification-service", "pool_size": 10, "active_connections": 9, "smtp_host": "smtp.internal"}
+{"offset_seconds": 305, "level": "INFO", "message": "Query completed", "service": "notification-service", "duration_ms": 19, "query": "SELECT * FROM notification_prefs WHERE user_id=?", "db_host": "db-replica-1"}
+{"offset_seconds": 328, "level": "WARN", "message": "Email queue lag detected", "service": "notification-service", "queue_depth": 31, "threshold": 15, "lag_seconds": 98}
+{"offset_seconds": 352, "level": "INFO", "message": "Email dispatched", "service": "notification-service", "type": "order_confirmation", "recipient": "u-3047", "queue_depth": 28}
+{"offset_seconds": 360, "level": "INFO", "message": "Health check passed", "service": "notification-service", "checks": {"db": "ok", "smtp": "degraded", "sms_gateway": "ok"}}
+{"offset_seconds": 383, "level": "WARN", "message": "Email queue lag detected", "service": "notification-service", "queue_depth": 37, "threshold": 15, "lag_seconds": 134}
+{"offset_seconds": 407, "level": "INFO", "message": "Query completed", "service": "notification-service", "duration_ms": 22, "query": "SELECT * FROM notification_prefs WHERE user_id=?", "db_host": "db-replica-1"}
+{"offset_seconds": 430, "level": "WARN", "message": "SMTP connection pool pressure", "service": "notification-service", "pool_size": 10, "active_connections": 10, "smtp_host": "smtp.internal"}
+{"offset_seconds": 455, "level": "WARN", "message": "Email queue lag detected", "service": "notification-service", "queue_depth": 43, "threshold": 15, "lag_seconds": 187}
+{"offset_seconds": 480, "level": "INFO", "message": "Health check passed", "service": "notification-service", "checks": {"db": "ok", "smtp": "degraded", "sms_gateway": "ok"}}
+{"offset_seconds": 503, "level": "INFO", "message": "Email dispatched", "service": "notification-service", "type": "payment_receipt", "recipient": "u-4412", "queue_depth": 39}
+{"offset_seconds": 527, "level": "WARN", "message": "Email queue lag detected", "service": "notification-service", "queue_depth": 48, "threshold": 15, "lag_seconds": 221}
+{"offset_seconds": 551, "level": "INFO", "message": "Query completed", "service": "notification-service", "duration_ms": 18, "query": "SELECT * FROM notification_prefs WHERE user_id=?", "db_host": "db-replica-1"}
+{"offset_seconds": 576, "level": "INFO", "message": "Email dispatched", "service": "notification-service", "type": "shipping_update", "recipient": "u-5503", "queue_depth": 44}
+{"offset_seconds": 600, "level": "INFO", "message": "Health check passed", "service": "notification-service", "checks": {"db": "ok", "smtp": "degraded", "sms_gateway": "ok"}}
+{"offset_seconds": 610, "level": "WARN", "message": "Email queue lag detected", "service": "notification-service", "queue_depth": 52, "threshold": 15, "lag_seconds": 248}
+{"offset_seconds": 635, "level": "WARN", "message": "SMTP connection pool pressure", "service": "notification-service", "pool_size": 10, "active_connections": 10, "smtp_host": "smtp.internal"}
+{"offset_seconds": 660, "level": "WARN", "message": "Email queue lag detected", "service": "notification-service", "queue_depth": 58, "threshold": 15, "lag_seconds": 273}

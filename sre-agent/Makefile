@@ -3,7 +3,15 @@ DIR := $(dir $(abspath $(lastword $(MAKEFILE_LIST))))
 include $(DIR).env
 export
 
-.PHONY: chat deploy
+SCENARIO ?= slow_db_queries
+
+.PHONY: chat deploy inject cleanup
+
+inject:
+	cd $(DIR) && uv run python tests/scenarios/$(SCENARIO)/inject.py
+
+cleanup:
+	cd $(DIR) && uv run python tests/scenarios/$(SCENARIO)/cleanup.py
 
 chat:
 	@echo "Chat UI running at http://localhost:8001"

@@ -58,3 +58,34 @@ make deploy
 ```bash
 make chat
 ```
+
+## Scenario Testing
+
+Inject synthetic logs into Cloud Logging to simulate an incident, then test the agent against them.
+
+**1. Inject logs:**
+
+```bash
+make inject                         # injects the slow_db_queries scenario (default)
+make inject SCENARIO=slow_db_queries  # explicit scenario name
+```
+
+**2. Run the agent:**
+
+```bash
+make chat
+```
+
+**3. Clean up injected logs:**
+
+```bash
+make cleanup
+make cleanup SCENARIO=slow_db_queries  # explicit scenario name
+```
+
+Use `--dry-run` to preview actions without writing to GCP:
+
+```bash
+uv run python tests/scenarios/slow_db_queries/inject.py --dry-run
+uv run python tests/scenarios/slow_db_queries/cleanup.py --dry-run
+```
