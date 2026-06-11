@@ -38,22 +38,55 @@ cp .env.example .env
 **6. Authenticate with GCP:**
 
 ```bash
-gcloud auth application-default login
+gcloud auth login                        # used by `make mcp-setup` for IAM grants
+gcloud auth application-default login    # used by the agent to call GCP APIs
 ```
 
-**7. Test the agent locally:**
+**7. Set up the Cloud Logging MCP server:**
+
+The agent reads logs via Google's managed Cloud Logging MCP server.
+`make mcp-setup` enables the required APIs (`logging.googleapis.com`,
+`agentregistry.googleapis.com`) and grants `roles/logging.viewer` +
+`roles/agentregistry.viewer` to both your user and the deployed runtime
+service account.
+
+```bash
+make mcp-setup
+make mcp-list    # verify the registry lists logging.googleapis.com
+```
+
+> **Fresh-project bootstrap.** If this is a new GCP project that has never
+> been used with Vertex AI, run these once before `make mcp-setup`:
+>
+> ```bash
+> # Billing must be linked to the project (UI or `gcloud billing`).
+> # Materialize the Vertex AI Agent Engine service identity so IAM grants stick:
+> gcloud beta services identity create \
+>     --service=aiplatform.googleapis.com \
+>     --project=$GOOGLE_CLOUD_PROJECT
+> # `make mcp-list` uses the alpha component:
+> gcloud components install alpha
+> ```
+>
+> If `mcp-list` returns nothing right after `mcp-setup`, registry provisioning
+> is still in flight — wait ~1 minute and retry.
+>
+> If you deploy with a **custom service account**, set `MCP_RUNTIME_SA` in
+> `.env` before running `make mcp-setup`.
+
+**8. Test the agent locally:**
 
 ```bash
 agents-cli playground
 ```
 
-**8. Deploy to GCP:**
+**9. Deploy to GCP:**
 
 ```bash
 make deploy
 ```
 
-**9. Launch the chat UI:**
+**10. Launch the chat UI:**
 
 ```bash
 make chat

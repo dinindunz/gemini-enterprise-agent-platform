@@ -16,6 +16,7 @@
 from google.adk.agents import Agent
 from google.adk.agents.callback_context import CallbackContext
 from google.adk.apps import App
+from google.adk.integrations.agent_registry import AgentRegistry
 from google.adk.models.anthropic_llm import Claude
 from google.adk.tools.preload_memory_tool import PreloadMemoryTool
 
@@ -25,6 +26,22 @@ import google.auth
 _, project_id = google.auth.default()
 os.environ["GOOGLE_CLOUD_PROJECT"] = project_id
 os.environ["GOOGLE_GENAI_USE_VERTEXAI"] = "True"
+
+# Cloud Logging MCP server (managed by Google). Enabled via `make mcp-setup`.
+# Resource name (opaque UUID) is resolved at startup so the code stays portable
+# across projects.
+_registry = AgentRegistry(project_id=project_id, location="global")
+_logging_servers = _registry.list_mcp_servers(
+    filter_str='displayName="logging.googleapis.com"'
+).get("mcpServers", [])
+if not _logging_servers:
+    raise RuntimeError(
+        "Cloud Logging MCP server is not registered in this project. "
+        "Run `make mcp-setup` from sre-agent/."
+    )
+logging_toolset = _registry.get_mcp_toolset(
+    mcp_server_name=_logging_servers[0]["name"],
+)
 
 
 async def generate_memories_callback(callback_context: CallbackContext):
@@ -39,12 +56,13 @@ root_agent = Agent(
         model=f"projects/{project_id}/locations/us-east5/publishers/anthropic/models/claude-sonnet-4-6"
     ),
     instruction=(
-        "You are a friendly greeting agent. "
-        "Greet the user warmly, using their name if they provide one. "
-        "Keep responses brief, positive, and welcoming. "
-        "Do not answer questions outside of greetings and pleasantries."
+        "You are an SRE assistant for project "
+        f"{project_id}. Use the Cloud Logging tools to investigate incidents "
+        "and answer questions about service behaviour. Always scope queries "
+        "with a narrow time window and severity filter; prefer structured "
+        "filters (logName, resource.type, severity) over free-text searches."
     ),
-    tools=[PreloadMemoryTool()],
+    tools=[PreloadMemoryTool(), logging_toolset],
     after_agent_callback=generate_memories_callback,
 )
 
