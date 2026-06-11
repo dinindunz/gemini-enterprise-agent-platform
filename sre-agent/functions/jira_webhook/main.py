@@ -42,6 +42,7 @@ logging.basicConfig(level=logging.INFO)
 
 _DEFAULT_SECRET_NAME = "jira-webhook"
 _SCOPES = ["https://www.googleapis.com/auth/cloud-platform"]
+_AGENT_USER_ID = "sre-agent"
 
 _jira_creds: dict | None = None
 _credentials = None
@@ -178,15 +179,16 @@ def handler(request):
         logger.error("Invalid JSON body in Jira webhook")
         return ("Bad Request", 400)
 
-    user_email = jira_event.get("user", {}).get("emailAddress") or "jira-webhook"
+    user_email = jira_event.get("user", {}).get("emailAddress") or "unknown"
     issue_key = jira_event.get("issue", {}).get("key", "unknown")
     event_type = jira_event.get("webhookEvent", "unknown")
     logger.info(
-        "Jira webhook: event=%s issue=%s user=%s", event_type, issue_key, user_email
+        "Jira webhook: event=%s issue=%s triggered_by=%s",
+        event_type, issue_key, user_email,
     )
 
     try:
-        _invoke_agent(_build_prompt(jira_event), user_id=user_email)
+        _invoke_agent(_build_prompt(jira_event), user_id=_AGENT_USER_ID)
     except Exception:
         logger.exception("Unhandled error invoking agent runtime")
 

@@ -127,6 +127,22 @@ make cleanup
 make cleanup SCENARIO=slow_db_queries  # explicit scenario name
 ```
 
+**4. Clear Memory Bank (optional):**
+
+The agent accumulates facts across runs in Vertex AI Memory Bank under the
+shared SRE partition (`app_name=app`, `user_id=sre-agent`). Stale or incorrect
+memories can confuse future investigations — for example, a fact saved during
+an earlier misconfiguration (e.g. *"Cloud Logging is unavailable"*) may keep
+resurfacing. To wipe the partition:
+
+```bash
+make clear-memory             # prompts for y/N
+make clear-memory FORCE=1     # skip prompt
+```
+
+The same memories appear under **Vertex AI → Agent Engine → your engine → Memory Bank**
+in the GCP console; this just removes them via the REST API.
+
 Use `--dry-run` to preview actions without writing to GCP:
 
 ```bash

@@ -6,7 +6,7 @@ export
 SCENARIO ?= slow_db_queries
 AGENT_ENGINE_ID := $(shell python3 -c "import json; print(open('$(DIR)deployment_metadata.json').read())" 2>/dev/null | python3 -c "import json,sys; d=json.load(sys.stdin); print(d['remote_agent_runtime_id'].split('/')[-1])" 2>/dev/null)
 
-.PHONY: chat dev deploy inject cleanup mcp-setup mcp-enable mcp-grant mcp-list deploy-webhook
+.PHONY: chat dev deploy inject cleanup mcp-setup mcp-enable mcp-grant mcp-list deploy-webhook clear-memory
 
 # ---- MCP setup (Google Cloud Observability MCP server) -------------------
 # Registers Cloud Logging as a remote MCP server and grants the IAM needed
@@ -71,3 +71,12 @@ deploy-webhook:
 	JIRA_SECRET_NAME=$(JIRA_SECRET_NAME) \
 	JIRA_WEBHOOK_REGION=$(GOOGLE_CLOUD_REGION) \
 	bash $(DIR)scripts/deploy_jira_webhook.sh
+
+# Delete all Memory Bank entries under the shared SRE partition
+# (app_name=app, user_id=sre-agent). Override SCOPE_APP_NAME / SCOPE_USER_ID
+# to target a different scope; pass FORCE=1 to skip the y/N prompt.
+clear-memory:
+	@test -n "$(AGENT_RUNTIME_RESOURCE)" || (echo "AGENT_RUNTIME_RESOURCE empty — run 'make deploy' first"; exit 1)
+	@AGENT_RUNTIME_RESOURCE=$(AGENT_RUNTIME_RESOURCE) \
+	GOOGLE_CLOUD_PROJECT=$(GOOGLE_CLOUD_PROJECT) \
+	bash $(DIR)scripts/clear_memory.sh

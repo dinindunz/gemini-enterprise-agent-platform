@@ -49,7 +49,7 @@ logging_toolset = _registry.get_mcp_toolset(
 
 async def generate_memories_callback(callback_context: CallbackContext):
     await callback_context.add_events_to_memory(
-        events=callback_context.session.events[-5:-1]
+        events=callback_context.session.events
     )
 
 
