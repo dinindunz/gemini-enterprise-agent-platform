@@ -1,5 +1,9 @@
+import json
+import os
+from pathlib import Path
+
 import chainlit as cl
-from google.adk.memory import InMemoryMemoryService
+from google.adk.memory import InMemoryMemoryService, VertexAiMemoryBankService
 from google.adk.runners import Runner
 from google.adk.sessions import InMemorySessionService
 from google.genai import types
@@ -7,8 +11,45 @@ from google.genai import types
 from app.agent import root_agent
 
 APP_NAME = "sre-agent"
+
+
+def _resolve_agent_engine_id() -> str | None:
+    """Pull the deployed engine ID from deployment_metadata.json (matches the
+    pattern in the Makefile's `dev` target). Falls back to env or None for
+    pure-local testing."""
+    env = os.environ.get("AGENT_ENGINE_ID")
+    if env:
+        return env.split("/")[-1]
+    meta = Path(__file__).resolve().parent.parent / "deployment_metadata.json"
+    if meta.exists():
+        with meta.open() as f:
+            data = json.load(f)
+        full = data.get("remote_agent_runtime_id", "")
+        if full:
+            return full.split("/")[-1]
+    return None
+
+
 _session_service = InMemorySessionService()
-_memory_service = InMemoryMemoryService()
+
+_engine_id = _resolve_agent_engine_id()
+if _engine_id:
+    import google.auth
+
+    _, _project = google.auth.default()
+    _location = os.environ.get("GOOGLE_CLOUD_REGION", "us-east1")
+    print(
+        f"[chainlit] Using Vertex Memory Bank: "
+        f"project={_project} location={_location} engine={_engine_id}"
+    )
+    _memory_service = VertexAiMemoryBankService(
+        project=_project,
+        location=_location,
+        agent_engine_id=_engine_id,
+    )
+else:
+    print("[chainlit] No deployed engine found — using InMemoryMemoryService")
+    _memory_service = InMemoryMemoryService()
 
 
 @cl.on_chat_start

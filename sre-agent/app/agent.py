@@ -16,28 +16,27 @@
 from google.adk.agents import Agent
 from google.adk.agents.callback_context import CallbackContext
 from google.adk.apps import App
-from google.adk.models import Gemini
+from google.adk.models.anthropic_llm import Claude
 from google.adk.tools.preload_memory_tool import PreloadMemoryTool
-from google.genai import types
 
 import os
 import google.auth
 
 _, project_id = google.auth.default()
 os.environ["GOOGLE_CLOUD_PROJECT"] = project_id
-os.environ["GOOGLE_CLOUD_LOCATION"] = "global"
 os.environ["GOOGLE_GENAI_USE_VERTEXAI"] = "True"
 
 
 async def generate_memories_callback(callback_context: CallbackContext):
-    await callback_context.add_session_to_memory()
+    await callback_context.add_events_to_memory(
+        events=callback_context.session.events[-5:-1]
+    )
 
 
 root_agent = Agent(
     name="root_agent",
-    model=Gemini(
-        model="gemini-flash-latest",
-        retry_options=types.HttpRetryOptions(attempts=3),
+    model=Claude(
+        model=f"projects/{project_id}/locations/us-east5/publishers/anthropic/models/claude-sonnet-4-6"
     ),
     instruction=(
         "You are a friendly greeting agent. "

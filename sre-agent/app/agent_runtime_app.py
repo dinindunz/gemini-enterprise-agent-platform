@@ -18,7 +18,6 @@ from typing import Any
 import vertexai
 from dotenv import load_dotenv
 from google.adk.artifacts import GcsArtifactService, InMemoryArtifactService
-from google.adk.memory import VertexAiMemoryBankService
 from google.cloud import logging as google_cloud_logging
 from vertexai.agent_engines.templates.adk import AdkApp
 
@@ -28,11 +27,6 @@ from app.app_utils.typing import Feedback
 
 # Load environment variables from .env file at runtime
 load_dotenv()
-
-_PROJECT = os.environ.get("GOOGLE_CLOUD_PROJECT")
-_REGION = os.environ.get("GOOGLE_CLOUD_REGION")
-# Extract the numeric ID from the full resource path
-_AGENT_ENGINE_ID = "5563247361569849344"
 
 
 class AgentEngineApp(AdkApp):
@@ -58,10 +52,6 @@ class AgentEngineApp(AdkApp):
         operations[""] = [*operations.get("", []), "register_feedback"]
         return operations
 
-    def clone(self) -> "AgentEngineApp":
-        """Returns a clone of the Agent Runtime application."""
-        return self
-
 
 gemini_location = os.environ.get("GOOGLE_CLOUD_LOCATION")
 logs_bucket_name = os.environ.get("LOGS_BUCKET_NAME")
@@ -71,10 +61,5 @@ agent_runtime = AgentEngineApp(
         GcsArtifactService(bucket_name=logs_bucket_name)
         if logs_bucket_name
         else InMemoryArtifactService()
-    ),
-    memory_service_builder=lambda: VertexAiMemoryBankService(
-        project=_PROJECT,
-        location=_REGION,
-        agent_engine_id=_AGENT_ENGINE_ID,
     ),
 )
