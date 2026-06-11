@@ -20,11 +20,14 @@ from google.adk.integrations.agent_registry import AgentRegistry
 from google.adk.models.anthropic_llm import Claude
 from google.adk.tools.preload_memory_tool import PreloadMemoryTool
 
+from app.tools import post_jira_comment
+
 import os
 import google.auth
 
 _, project_id = google.auth.default()
 os.environ["GOOGLE_CLOUD_PROJECT"] = project_id
+os.environ["GOOGLE_CLOUD_QUOTA_PROJECT"] = project_id
 os.environ["GOOGLE_GENAI_USE_VERTEXAI"] = "True"
 
 # Cloud Logging MCP server (managed by Google). Enabled via `make mcp-setup`.
@@ -60,9 +63,12 @@ root_agent = Agent(
         f"{project_id}. Use the Cloud Logging tools to investigate incidents "
         "and answer questions about service behaviour. Always scope queries "
         "with a narrow time window and severity filter; prefer structured "
-        "filters (logName, resource.type, severity) over free-text searches."
+        "filters (logName, resource.type, severity) over free-text searches. "
+        "When the request originates from a Jira webhook (the prompt will name "
+        "an issue key), summarise your findings and post them back to the "
+        "issue with the post_jira_comment tool."
     ),
-    tools=[PreloadMemoryTool(), logging_toolset],
+    tools=[PreloadMemoryTool(), logging_toolset, post_jira_comment],
     after_agent_callback=generate_memories_callback,
 )
 

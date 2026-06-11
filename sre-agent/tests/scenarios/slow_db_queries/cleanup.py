@@ -11,6 +11,7 @@ Usage:
 import argparse
 import os
 from pathlib import Path
+from urllib.parse import quote
 
 from dotenv import load_dotenv
 from google.cloud import logging as gcp_logging
@@ -32,7 +33,7 @@ def cleanup(dry_run: bool = False) -> None:
 
     deleted = 0
     for service in services:
-        log_name = f"{LOG_PREFIX}/{service}"
+        log_name = quote(f"{LOG_PREFIX}/{service}", safe="")
         if dry_run:
             print(f"[dry-run] would delete: projects/{PROJECT_ID}/logs/{log_name}")
         else:

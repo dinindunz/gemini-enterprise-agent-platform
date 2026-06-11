@@ -20,6 +20,7 @@ import re
 import time
 from datetime import datetime, timezone
 from pathlib import Path
+from urllib.parse import quote
 
 from dotenv import load_dotenv
 from google.cloud import logging as gcp_logging
@@ -65,7 +66,7 @@ def inject(dry_run: bool = False) -> None:
 
     for jsonl_file in sorted(LOGS_DIR.glob("*.jsonl")):
         service = jsonl_file.stem  # e.g. "api-service"
-        log_name = f"{LOG_PREFIX}/{service}"
+        log_name = quote(f"{LOG_PREFIX}/{service}", safe="")
         print(f"\nProcessing {service} → projects/{PROJECT_ID}/logs/{log_name} ...")
 
         entries = []

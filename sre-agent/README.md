@@ -74,11 +74,22 @@ make mcp-list    # verify the registry lists logging.googleapis.com
 > If you deploy with a **custom service account**, set `MCP_RUNTIME_SA` in
 > `.env` before running `make mcp-setup`.
 
-**8. Test the agent locally:**
+**8. Deploy the Jira webhook:**
+
+Generate a Jira API token: go to `id.atlassian.net → Account Settings → Security → API tokens → Create API token`.
+
+Fill in the four `JIRA_*` values in your `.env` (see `.env.example`), then:
 
 ```bash
-agents-cli playground
+make deploy-webhook
 ```
+
+Generate a webhook shared secret:
+```bash
+python3 -c "import secrets; print(secrets.token_hex(32))"
+```
+
+In Jira: **Settings → System → Webhooks → Create a Webhook** - set the URL from deploy-webhook step, the shared secret, and select the Issue: created event for the agent to handle.
 
 **9. Deploy to GCP:**
 

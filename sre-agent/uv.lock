@@ -4005,8 +4005,10 @@ dependencies = [
     { name = "google-adk", extra = ["a2a", "agent-identity"] },
     { name = "google-cloud-aiplatform", extra = ["agent-engines", "evaluation"] },
     { name = "google-cloud-logging" },
+    { name = "google-cloud-secret-manager" },
     { name = "opentelemetry-instrumentation-google-genai" },
     { name = "protobuf" },
+    { name = "requests" },
     { name = "slack-bolt" },
 ]
 
@@ -4039,8 +4041,10 @@ requires-dist = [
     { name = "google-cloud-aiplatform", extras = ["agent-engines", "evaluation"], specifier = ">=1.156.0" },
     { name = "google-cloud-aiplatform", extras = ["evaluation"], marker = "extra == 'eval'", specifier = ">=1.156.0" },
     { name = "google-cloud-logging", specifier = ">=3.12.0,<4.0.0" },
+    { name = "google-cloud-secret-manager", specifier = ">=2.20.0,<3.0.0" },
     { name = "opentelemetry-instrumentation-google-genai", specifier = ">=0.1.0,<1.0.0" },
     { name = "protobuf", specifier = ">=6.31.1,<7.0.0" },
+    { name = "requests", specifier = ">=2.32.0,<3.0.0" },
     { name = "ruff", marker = "extra == 'lint'", specifier = ">=0.4.6,<1.0.0" },
     { name = "slack-bolt", specifier = ">=1.18.0" },
     { name = "ty", marker = "extra == 'lint'", specifier = ">=0.0.1a0" },

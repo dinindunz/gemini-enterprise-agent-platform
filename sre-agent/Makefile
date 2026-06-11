@@ -6,14 +6,13 @@ export
 SCENARIO ?= slow_db_queries
 AGENT_ENGINE_ID := $(shell python3 -c "import json; print(open('$(DIR)deployment_metadata.json').read())" 2>/dev/null | python3 -c "import json,sys; d=json.load(sys.stdin); print(d['remote_agent_runtime_id'].split('/')[-1])" 2>/dev/null)
 
-.PHONY: chat dev deploy inject cleanup mcp-setup mcp-enable mcp-grant mcp-list
+.PHONY: chat dev deploy inject cleanup mcp-setup mcp-enable mcp-grant mcp-list deploy-webhook
 
 # ---- MCP setup (Google Cloud Observability MCP server) -------------------
 # Registers Cloud Logging as a remote MCP server and grants the IAM needed
 # for both the developer (ADC) and the deployed agent's runtime SA.
 # Targets are idempotent.
 LOGGING_MCP        := logging.googleapis.com
-MCP_ROLES          := roles/logging.viewer roles/agentregistry.viewer
 GCLOUD_USER        := $(shell gcloud config get-value account 2>/dev/null)
 PROJECT_NUMBER     := $(shell gcloud projects describe $(GOOGLE_CLOUD_PROJECT) --format='value(projectNumber)' 2>/dev/null)
 # Vertex AI Agent Engine default runtime SA. Override MCP_RUNTIME_SA in .env
@@ -28,16 +27,10 @@ mcp-enable:
 		--project=$(GOOGLE_CLOUD_PROJECT)
 
 mcp-grant:
-	@for role in $(MCP_ROLES); do \
-		echo "→ Granting $$role to user:$(GCLOUD_USER)"; \
-		gcloud projects add-iam-policy-binding $(GOOGLE_CLOUD_PROJECT) \
-			--member="user:$(GCLOUD_USER)" --role="$$role" \
-			--condition=None --quiet >/dev/null; \
-		echo "→ Granting $$role to serviceAccount:$(MCP_RUNTIME_SA)"; \
-		gcloud projects add-iam-policy-binding $(GOOGLE_CLOUD_PROJECT) \
-			--member="serviceAccount:$(MCP_RUNTIME_SA)" --role="$$role" \
-			--condition=None --quiet >/dev/null; \
-	done
+	@GOOGLE_CLOUD_PROJECT=$(GOOGLE_CLOUD_PROJECT) \
+	GCLOUD_USER=$(GCLOUD_USER) \
+	MCP_RUNTIME_SA=$(MCP_RUNTIME_SA) \
+	bash $(DIR)scripts/mcp_grant.sh
 
 mcp-list:
 	gcloud alpha agent-registry mcp-servers list \
@@ -63,3 +56,18 @@ deploy:
 		--project $(GOOGLE_CLOUD_PROJECT) \
 		--region $(GOOGLE_CLOUD_REGION) \
 		--no-confirm-project
+
+# ---- Jira webhook Cloud Function -----------------------------------------
+# Provisions secret + IAM + deploys the function. Expects these env vars to be
+# set in the shell before running (NOT committed to .env):
+#   JIRA_BASE_URL JIRA_EMAIL JIRA_API_TOKEN JIRA_WEBHOOK_SECRET
+# Re-running is safe — the script upserts the secret and IAM bindings.
+AGENT_RUNTIME_RESOURCE := $(shell python3 -c "import json; print(json.load(open('$(DIR)deployment_metadata.json'))['remote_agent_runtime_id'])" 2>/dev/null)
+
+deploy-webhook:
+	@test -n "$(AGENT_RUNTIME_RESOURCE)" || (echo "AGENT_RUNTIME_RESOURCE empty — run 'make deploy' first"; exit 1)
+	AGENT_RUNTIME_RESOURCE=$(AGENT_RUNTIME_RESOURCE) \
+	GOOGLE_CLOUD_PROJECT=$(GOOGLE_CLOUD_PROJECT) \
+	JIRA_SECRET_NAME=$(JIRA_SECRET_NAME) \
+	JIRA_WEBHOOK_REGION=$(GOOGLE_CLOUD_REGION) \
+	bash $(DIR)scripts/deploy_jira_webhook.sh
