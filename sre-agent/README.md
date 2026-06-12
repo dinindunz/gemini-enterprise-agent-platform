@@ -74,30 +74,69 @@ make mcp-list    # verify the registry lists logging.googleapis.com
 > If you deploy with a **custom service account**, set `MCP_RUNTIME_SA` in
 > `.env` before running `make mcp-setup`.
 
-**8. Deploy the Jira webhook:**
+**8. Provision the telemetry GCS bucket:**
 
-Generate a Jira API token: go to `id.atlassian.net → Account Settings → Security → API tokens → Create API token`.
-
-Fill in the four `JIRA_*` values in your `.env` (see `.env.example`), then:
+Creates `gs://${PROJECT}-sre-agent-logs` and grants the runtime SA read/write
+on it. Must run **before** `make deploy` so the bucket exists and the IAM is
+in place when the agent first writes prompt-response completions.
 
 ```bash
-make deploy-webhook
+make telemetry-bucket
 ```
+
+Then add the bucket name to `.env` so the deploy bakes it onto the runtime:
+
+```bash
+echo "LOGS_BUCKET_NAME=${PROJECT}-sre-agent-logs" >> .env
+```
+
+Without this env var, `app/app_utils/telemetry.py` leaves prompt-response
+capture disabled and only span-level metadata reaches Cloud Trace.
+
+**9. Deploy the agent to GCP:**
+
+```bash
+make deploy
+```
+
+This creates the Vertex AI Reasoning Engine and writes `deployment_metadata.json`,
+which the next two steps depend on.
+
+**10. Wire up BigQuery Agent Analytics:**
+
+Creates the BQ dataset `sre_agent_analytics` and a Cloud Logging sink scoped
+to the engine just deployed. Run **after** `make deploy` so the sink filter
+narrows to the deployed engine ID.
+
+```bash
+make telemetry-bq
+```
+
+Query inference logs once traffic flows (may take a few minutes to propagate):
+
+```bash
+bq query --use_legacy_sql=false \
+  'SELECT timestamp, jsonPayload FROM `'"$GOOGLE_CLOUD_PROJECT"'.sre_agent_analytics.*` ORDER BY timestamp DESC LIMIT 20'
+```
+
+**11. Deploy the Jira webhook:**
+
+Generate a Jira API token: go to `id.atlassian.net → Account Settings → Security → API tokens → Create API token`.
 
 Generate a webhook shared secret:
 ```bash
 python3 -c "import secrets; print(secrets.token_hex(32))"
 ```
 
-In Jira: **Settings → System → Webhooks → Create a Webhook** - set the URL from deploy-webhook step, the shared secret, and select the Issue: created event for the agent to handle.
-
-**9. Deploy to GCP:**
+Export the four `JIRA_*` values in your shell (do NOT commit them to `.env`), then:
 
 ```bash
-make deploy
+make deploy-webhook
 ```
 
-**10. Launch the chat UI:**
+In Jira: **Settings → System → Webhooks → Create a Webhook** — set the URL from `deploy-webhook` output, the shared secret, and select the **Issue: created** event for the agent to handle.
+
+**12. Launch the chat UI:**
 
 ```bash
 make chat

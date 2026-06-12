@@ -6,7 +6,7 @@ export
 SCENARIO ?= slow_db_queries
 AGENT_ENGINE_ID := $(shell python3 -c "import json; print(open('$(DIR)deployment_metadata.json').read())" 2>/dev/null | python3 -c "import json,sys; d=json.load(sys.stdin); print(d['remote_agent_runtime_id'].split('/')[-1])" 2>/dev/null)
 
-.PHONY: chat dev deploy inject cleanup mcp-setup mcp-enable mcp-grant mcp-list deploy-webhook clear-memory
+.PHONY: chat dev deploy inject cleanup mcp-setup mcp-enable mcp-grant mcp-list deploy-webhook clear-memory telemetry-setup telemetry-bucket telemetry-bq
 
 # ---- MCP setup (Google Cloud Observability MCP server) -------------------
 # Registers Cloud Logging as a remote MCP server and grants the IAM needed
@@ -71,6 +71,28 @@ deploy-webhook:
 	JIRA_SECRET_NAME=$(JIRA_SECRET_NAME) \
 	JIRA_WEBHOOK_REGION=$(GOOGLE_CLOUD_REGION) \
 	bash $(DIR)scripts/deploy_jira_webhook.sh
+
+# ---- Observability: prompt-response logging + BQ analytics ---------------
+# telemetry-bucket: GCS bucket for completions (NDJSON) + IAM for runtime SA.
+# telemetry-bq:     BQ dataset + Cloud Logging sink for inference logs.
+# telemetry-setup:  both. Re-runnable; safe to call before or after `make deploy`
+#                   (BQ sink auto-narrows to the deployed engine ID when present).
+LOGS_BUCKET_NAME ?= $(GOOGLE_CLOUD_PROJECT)-sre-agent-logs
+BQ_DATASET       ?= sre_agent_analytics
+
+telemetry-bucket:
+	@GOOGLE_CLOUD_PROJECT=$(GOOGLE_CLOUD_PROJECT) \
+	GOOGLE_CLOUD_REGION=$(GOOGLE_CLOUD_REGION) \
+	LOGS_BUCKET_NAME=$(LOGS_BUCKET_NAME) \
+	MCP_RUNTIME_SA=$(MCP_RUNTIME_SA) \
+	bash $(DIR)scripts/setup_telemetry_bucket.sh
+	@echo "✓ Telemetry setup complete. Add LOGS_BUCKET_NAME=$(LOGS_BUCKET_NAME) to .env, then 'make deploy'."
+
+telemetry-bq:
+	@GOOGLE_CLOUD_PROJECT=$(GOOGLE_CLOUD_PROJECT) \
+	BQ_DATASET=$(BQ_DATASET) \
+	AGENT_RUNTIME_RESOURCE="$(AGENT_RUNTIME_RESOURCE)" \
+	bash $(DIR)scripts/setup_bq_analytics.sh
 
 # Delete all Memory Bank entries under the shared SRE partition
 # (app_name=app, user_id=sre-agent). Override SCOPE_APP_NAME / SCOPE_USER_ID
