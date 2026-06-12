@@ -67,10 +67,19 @@ chat:
 	@echo "Chat UI running at http://localhost:8001"
 	cd $(DIR) && uv run chainlit run app/chainlit_app.py -w --port 8001
 
+# Prompt-response logging env vars passed via --update-env-vars.
+# These MUST be on the deployment spec (not set lazily in setup_telemetry()):
+# the OpenTelemetry GenAI util reads the upload-hook and base-path env vars
+# at import time, which is earlier than app set_up(). Setting them later means
+# the upload hook never registers and nothing lands in GCS.
+LOGS_BUCKET_NAME ?= $(GOOGLE_CLOUD_PROJECT)-sre-agent-logs
+GENAI_TELEMETRY_PATH ?= completions
+
 deploy:
 	cd $(DIR) && agents-cli deploy \
 		--project $(GOOGLE_CLOUD_PROJECT) \
 		--region $(GOOGLE_CLOUD_REGION) \
+		--update-env-vars LOGS_BUCKET_NAME=$(LOGS_BUCKET_NAME),OTEL_INSTRUMENTATION_GENAI_CAPTURE_MESSAGE_CONTENT=NO_CONTENT,OTEL_INSTRUMENTATION_GENAI_COMPLETION_HOOK=upload,OTEL_INSTRUMENTATION_GENAI_UPLOAD_FORMAT=jsonl,OTEL_INSTRUMENTATION_GENAI_UPLOAD_BASE_PATH=gs://$(LOGS_BUCKET_NAME)/$(GENAI_TELEMETRY_PATH),OTEL_SEMCONV_STABILITY_OPT_IN=gen_ai_latest_experimental \
 		--no-confirm-project
 
 # ---- Jira webhook Cloud Function -----------------------------------------
@@ -93,7 +102,6 @@ deploy-webhook:
 # telemetry-bq:     BQ dataset + Cloud Logging sink for inference logs.
 # telemetry-setup:  both. Re-runnable; safe to call before or after `make deploy`
 #                   (BQ sink auto-narrows to the deployed engine ID when present).
-LOGS_BUCKET_NAME ?= $(GOOGLE_CLOUD_PROJECT)-sre-agent-logs
 BQ_DATASET       ?= sre_agent_analytics
 
 telemetry-bucket:
