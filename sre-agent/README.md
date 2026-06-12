@@ -146,27 +146,56 @@ make chat
 
 Inject synthetic logs into Cloud Logging to simulate an incident, then test the agent against them.
 
-**1. Inject logs:**
+**1. Inject logs + fire the Jira alert:**
 
 ```bash
 make inject                         # injects the slow_db_queries scenario (default)
 make inject SCENARIO=slow_db_queries  # explicit scenario name
 ```
 
-**2. Run the agent:**
+This single command runs `cleanup` (safe even if no prior logs exist), injects the
+scenario, waits `JIRA_DELAY_SECONDS` (default 30s) for logs to settle, then creates
+a Jira issue in `JIRA_PROJECT_KEY` from `jira.md`. The Jira webhook fires the
+deployed agent against the fresh timeline.
+
+Override the wait or run a sub-step on its own:
+
+```bash
+make inject JIRA_DELAY_SECONDS=10  # shorter wait
+make inject-only                     # inject without cleanup or Jira
+make post-jira                       # just create the Jira ticket
+```
+
+**2. Watch the agent investigate:**
+
+- **Jira** — open the issue in `JIRA_BASE_URL`; the agent posts its findings as a comment via `post_jira_comment`.
+- **BigQuery (prompt/response analytics)** — inference logs land in `${GOOGLE_CLOUD_PROJECT}.sre_agent_analytics.*` (a minute or two after traffic). Quick peek:
+  ```bash
+  bq query --use_legacy_sql=false \
+    'SELECT timestamp, jsonPayload FROM `'"$GOOGLE_CLOUD_PROJECT"'.sre_agent_analytics.*` ORDER BY timestamp DESC LIMIT 20'
+  ```
+  Or open the dataset in the [BigQuery console](https://console.cloud.google.com/bigquery).
+- **Cloud Trace** — full agent spans (LLM calls, tool calls, MCP hops): [Trace explorer](https://console.cloud.google.com/traces/list) → filter on service `sre-agent`.
+- **Cloud Logging** — runtime stdout/stderr and the injected scenario logs: [Logs explorer](https://console.cloud.google.com/logs/query) → filter `resource.type="aiplatform.googleapis.com/ReasoningEngine"` for the agent, or `logName=~"production%2F"` for the injected scenario.
+
+**3. Follow up in chat (optional):**
+
+If you want to interrogate the agent further about what it found, drop into the chat UI — it shares the same Memory Bank partition as the webhook run, so it sees the same context:
 
 ```bash
 make chat
 ```
 
-**3. Clean up injected logs:**
+**4. Clean up injected logs:**
+
+`make inject` cleans up automatically on its next run, but you can also do it manually:
 
 ```bash
 make cleanup
 make cleanup SCENARIO=slow_db_queries  # explicit scenario name
 ```
 
-**4. Clear Memory Bank (optional):**
+**5. Clear Memory Bank (optional):**
 
 The agent accumulates facts across runs in Vertex AI Memory Bank under the
 shared SRE partition (`app_name=app`, `user_id=sre-agent`). Stale or incorrect

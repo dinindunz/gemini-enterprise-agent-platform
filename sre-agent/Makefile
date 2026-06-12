@@ -6,11 +6,13 @@ export
 SCENARIO ?= slow_db_queries
 AGENT_ENGINE_ID := $(shell python3 -c "import json; print(open('$(DIR)deployment_metadata.json').read())" 2>/dev/null | python3 -c "import json,sys; d=json.load(sys.stdin); print(d['remote_agent_runtime_id'].split('/')[-1])" 2>/dev/null)
 
-.PHONY: chat dev deploy inject cleanup mcp-setup mcp-enable mcp-grant mcp-list deploy-webhook clear-memory telemetry-setup telemetry-bucket telemetry-bq
+.PHONY: chat dev deploy inject inject-only post-jira cleanup mcp-setup mcp-enable mcp-grant mcp-list deploy-webhook clear-memory telemetry-setup telemetry-bucket telemetry-bq
 
 # ---- MCP setup (Google Cloud Observability MCP server) -------------------
 # Registers Cloud Logging as a remote MCP server and grants the IAM needed
 # for both the developer (ADC) and the deployed agent's runtime SA.
+# Also enables cloudresourcemanager.googleapis.com so vertexai.init()'s
+# projectNumber -> projectId lookup at agent startup doesn't 403.
 # Targets are idempotent.
 LOGGING_MCP        := logging.googleapis.com
 GCLOUD_USER        := $(shell gcloud config get-value account 2>/dev/null)
@@ -24,6 +26,7 @@ mcp-setup: mcp-enable mcp-grant
 
 mcp-enable:
 	gcloud services enable $(LOGGING_MCP) agentregistry.googleapis.com \
+		cloudresourcemanager.googleapis.com \
 		--project=$(GOOGLE_CLOUD_PROJECT)
 
 mcp-grant:
@@ -37,8 +40,21 @@ mcp-list:
 		--project=$(GOOGLE_CLOUD_PROJECT) \
 		--location=global
 
-inject:
+# Full incident simulation: wipe prior logs, inject fresh ones, then
+# create the Jira ticket so the webhook fires against a clean timeline.
+# JIRA_DELAY_SECONDS overrides the wait between inject and Jira create.
+JIRA_DELAY_SECONDS ?= 30
+
+inject: cleanup inject-only
+	@echo "Waiting $(JIRA_DELAY_SECONDS)s for logs to settle before creating Jira ticket..."
+	@sleep $(JIRA_DELAY_SECONDS)
+	@$(MAKE) post-jira
+
+inject-only:
 	cd $(DIR) && uv run python tests/scenarios/$(SCENARIO)/inject.py
+
+post-jira:
+	cd $(DIR) && uv run python tests/scenarios/$(SCENARIO)/post_jira.py
 
 cleanup:
 	cd $(DIR) && uv run python tests/scenarios/$(SCENARIO)/cleanup.py
