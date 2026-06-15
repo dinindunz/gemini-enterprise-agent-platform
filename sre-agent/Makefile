@@ -6,7 +6,7 @@ export
 SCENARIO ?= slow_db_queries
 AGENT_ENGINE_ID := $(shell python3 -c "import json; print(open('$(DIR)deployment_metadata.json').read())" 2>/dev/null | python3 -c "import json,sys; d=json.load(sys.stdin); print(d['remote_agent_runtime_id'].split('/')[-1])" 2>/dev/null)
 
-.PHONY: chat dev deploy inject inject-only post-jira cleanup mcp-setup mcp-enable mcp-grant mcp-list deploy-webhook clear-memory telemetry-setup telemetry-bucket telemetry-bq
+.PHONY: chat dev deploy inject inject-only post-jira cleanup mcp-setup mcp-enable mcp-grant mcp-list deploy-webhook clear-memory telemetry-setup telemetry-bucket telemetry-bq online-monitor
 
 # ---- MCP setup (Google Cloud Observability MCP server) -------------------
 # Registers Cloud Logging as a remote MCP server and grants the IAM needed
@@ -79,7 +79,7 @@ deploy:
 	cd $(DIR) && agents-cli deploy \
 		--project $(GOOGLE_CLOUD_PROJECT) \
 		--region $(GOOGLE_CLOUD_REGION) \
-		--update-env-vars LOGS_BUCKET_NAME=$(LOGS_BUCKET_NAME),OTEL_INSTRUMENTATION_GENAI_CAPTURE_MESSAGE_CONTENT=NO_CONTENT,OTEL_INSTRUMENTATION_GENAI_COMPLETION_HOOK=upload,OTEL_INSTRUMENTATION_GENAI_UPLOAD_FORMAT=jsonl,OTEL_INSTRUMENTATION_GENAI_UPLOAD_BASE_PATH=gs://$(LOGS_BUCKET_NAME)/$(GENAI_TELEMETRY_PATH),OTEL_SEMCONV_STABILITY_OPT_IN=gen_ai_latest_experimental \
+		--update-env-vars LOGS_BUCKET_NAME=$(LOGS_BUCKET_NAME),OTEL_INSTRUMENTATION_GENAI_CAPTURE_MESSAGE_CONTENT=EVENT_ONLY,OTEL_INSTRUMENTATION_GENAI_COMPLETION_HOOK=upload,OTEL_INSTRUMENTATION_GENAI_UPLOAD_FORMAT=jsonl,OTEL_INSTRUMENTATION_GENAI_UPLOAD_BASE_PATH=gs://$(LOGS_BUCKET_NAME)/$(GENAI_TELEMETRY_PATH),OTEL_SEMCONV_STABILITY_OPT_IN=gen_ai_latest_experimental \
 		--no-confirm-project
 
 # ---- Jira webhook Cloud Function -----------------------------------------
@@ -117,6 +117,21 @@ telemetry-bq:
 	BQ_DATASET=$(BQ_DATASET) \
 	AGENT_RUNTIME_RESOURCE="$(AGENT_RUNTIME_RESOURCE)" \
 	bash $(DIR)scripts/setup_bq_analytics.sh
+
+# ---- Continuous evaluation: Agent Platform OnlineEvaluator ---------------
+# Creates an OnlineEvaluator that runs every 10 min, samples live traces, and
+# scores them with the Gen AI Evaluation Service. Requires the agent to have
+# been deployed with CAPTURE_MESSAGE_CONTENT=EVENT_ONLY (see `deploy` above).
+# Pass MONITOR_ARGS to override defaults, e.g.:
+#   make online-monitor MONITOR_ARGS="--sampling-percent 25 --max-samples 100"
+MONITOR_ARGS ?=
+
+online-monitor:
+	@test -n "$(AGENT_RUNTIME_RESOURCE)" || (echo "AGENT_RUNTIME_RESOURCE empty — run 'make deploy' first"; exit 1)
+	cd $(DIR) && AGENT_RUNTIME_RESOURCE="$(AGENT_RUNTIME_RESOURCE)" \
+	GOOGLE_CLOUD_PROJECT=$(GOOGLE_CLOUD_PROJECT) \
+	GOOGLE_CLOUD_REGION=$(GOOGLE_CLOUD_REGION) \
+	uv run python scripts/create_online_monitor.py $(MONITOR_ARGS)
 
 # Delete all Memory Bank entries under the shared SRE partition
 # (app_name=app, user_id=sre-agent). Override SCOPE_APP_NAME / SCOPE_USER_ID

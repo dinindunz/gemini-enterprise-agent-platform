@@ -9,5 +9,5 @@ Description:
   Metric: CPUUtilization
   Current value: 91%
   Threshold: 85%
-  Triggered: 2026-03-21 12:33:25 UTC
+  Triggered: 2026-06-15 06:35:40 UTC
   Environment: production

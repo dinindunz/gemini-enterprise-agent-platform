@@ -1,7 +1,7 @@
 name: sre-agent
 acli_version: 0.3.1
 agent_directory: app
-region: us-east1
+region: us-east4
 base_template: adk
 generated_at: '2026-06-10T10:10:26.404919+00:00'
 language: python
